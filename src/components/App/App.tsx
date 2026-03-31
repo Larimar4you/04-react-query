@@ -8,10 +8,14 @@ import MovieModal from "../MovieModal/MovieModal";
 import type { Movie } from "../../types/movie";
 import { searchMovies } from "../../services/movieService";
 
-export default function App() {
+export default function App() {``=
+  const [query, setQuery] = useState("");
+  const [page, setPage] = useState(1);
+
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
+
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
 
   const handleSearch = async (query: string): Promise<void> => {
