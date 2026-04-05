@@ -3,11 +3,15 @@ import type { Movie } from "../types/movie";
 
 const API_URL = "https://api.themoviedb.org/3";
 
-interface SearchMoviesResponse {
+export interface SearchMoviesResponse {
   results: Movie[];
+  total_pages: number;
 }
 
-export async function searchMovies(query: string): Promise<Movie[]> {
+export async function searchMovies(
+  query: string,
+  page: number,
+): Promise<SearchMoviesResponse> {
   const response = await axios.get<SearchMoviesResponse>(
     `${API_URL}/search/movie`,
     {
@@ -15,7 +19,7 @@ export async function searchMovies(query: string): Promise<Movie[]> {
         query,
         include_adult: false,
         language: "en-US",
-        page: 1,
+        page,
       },
       headers: {
         Authorization: `Bearer ${import.meta.env.VITE_TMDB_TOKEN}`,
@@ -23,5 +27,5 @@ export async function searchMovies(query: string): Promise<Movie[]> {
     },
   );
 
-  return response.data.results;
+  return response.data;
 }
