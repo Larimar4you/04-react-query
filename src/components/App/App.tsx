@@ -4,6 +4,8 @@ import SearchBar from "../SearchBar/SearchBar";
 import MovieGrid from "../MovieGrid/MovieGrid";
 import Loader from "../Loader/Loader";
 import ErrorMessage from "../ErrorMessage/ErrorMessage";
+import MovieModal from "../MovieModal/MovieModal";
+import type { Movie } from "../../types/movie";
 import { searchMovies } from "../../services/movieService";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import ReactPaginateModule from "react-paginate";
@@ -34,29 +36,44 @@ export default function App() {
 
   const movies = data?.results ?? [];
   const totalPages = data?.total_pages ?? 0;
+  useEffect(() => {
+    if (movie && data && data.results.length === 0) {
+      toast.error("No movies found for your request.", {
+        id: "no-movies-found",
+      });
+    }
+  }, [movie, data]);
+
+  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
 
   const handleSearch = (newMovie: string) => {
     setMovie(newMovie);
     setCurrentPage(1);
+    setSelectedMovie(null);
   };
 
-  useEffect(() => {
-    if (movie && data && data.results.length === 0) {
-      toast.error("No movies found for your request.");
-    }
-  }, [movie, data]);
+  const handleSelectMovie = (movie: Movie): void => {
+    setSelectedMovie(movie);
+  };
+
+  const handleCloseModal = (): void => {
+    setSelectedMovie(null);
+  };
 
   return (
-    <>
+    <div className={styles.app}>
       <SearchBar onSubmit={handleSearch} />
       <Toaster />
+
       {isLoading && <Loader />}
 
       {isError && (
         <ErrorMessage message="There was an error, please try again..." />
       )}
 
-      {movies.length > 0 && <MovieGrid movies={movies} onSelect={() => {}} />}
+      {movies.length > 0 && (
+        <MovieGrid movies={movies} onSelect={handleSelectMovie} />
+      )}
 
       {totalPages > 1 && (
         <ReactPaginate
@@ -71,6 +88,10 @@ export default function App() {
           previousLabel="←"
         />
       )}
-    </>
+
+      {selectedMovie && (
+        <MovieModal movie={selectedMovie} onClose={handleCloseModal} />
+      )}
+    </div>
   );
 }
